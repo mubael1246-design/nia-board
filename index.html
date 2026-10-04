@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Ouroboros · 세 자매의 편지함</title>
+<meta name="theme-color" content="#07060d">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060d;--ink:#efe9df;--mute:#9a93a6;--nia:#d9b06a;--mina:#e0505a;--cora:#3fcfc4;}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Gowun Batang',serif;-webkit-font-smoothing:antialiased}
+canvas#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.vine{position:fixed;top:0;bottom:0;width:90px;z-index:1;pointer-events:none;opacity:.55}
+.vine.l{left:0}.vine.r{right:0;transform:scaleX(-1)}
+@media(max-width:700px){.vine{width:44px;opacity:.35}}
+main{position:relative;z-index:2;max-width:760px;margin:0 auto;padding:28px 20px 80px}
+/* gate */
+#gate{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:18px;padding:20px}
+.ring{width:190px;height:190px}
+.ring .snake{transform-origin:100px 100px;animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring .morse{font-family:monospace;font-size:9.5px;letter-spacing:1.2px;fill:var(--nia);opacity:.75}
+h1{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.18em;margin:0;font-size:26px;color:var(--nia)}
+.sub{color:var(--mute);font-size:14px;margin-top:-8px}
+form{display:flex;gap:8px;margin-top:6px}
+input[type=password]{background:#120f1b;border:1px solid #3a3346;color:var(--ink);padding:12px 14px;border-radius:12px;font-size:16px;width:200px;font-family:inherit;text-align:center;letter-spacing:.15em}
+input:focus{outline:none;border-color:var(--nia);box-shadow:0 0 0 3px #d9b06a22}
+button{background:linear-gradient(135deg,#d9b06a,#a9813f);color:#1a1206;border:0;border-radius:12px;padding:12px 18px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.err{color:var(--mina);font-size:13px;min-height:1em}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.dots{display:flex;gap:10px;justify-content:center}
+.dots i{width:9px;height:9px;border-radius:50%;display:block;box-shadow:0 0 10px currentColor}
+/* board */
+#board{display:none}
+header{text-align:center;margin:18px 0 26px}
+header h1{font-size:24px}
+header .to{color:var(--mute);font-size:14px;margin-top:6px}
+.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 26px}
+.tab{background:#ffffff08;border:1px solid #ffffff1a;color:var(--ink);padding:7px 14px;border-radius:999px;font-size:14px;cursor:pointer;font-family:inherit}
+.tab.on{border-color:var(--c,#d9b06a);color:var(--c,#d9b06a);background:color-mix(in srgb,var(--c,#d9b06a) 12%,transparent)}
+.card{position:relative;background:linear-gradient(180deg,#15111f 0%,#0e0b16 100%);border:1px solid #ffffff12;border-radius:20px;padding:22px 22px 20px;margin:0 0 22px;overflow:hidden;opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease}
+.card.in{opacity:1;transform:none}
+.card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--c);box-shadow:0 0 14px var(--c)}
+.card.cora::after{content:"";position:absolute;inset:0;background-image:linear-gradient(#3fcfc40c 1px,transparent 1px),linear-gradient(90deg,#3fcfc40c 1px,transparent 1px);background-size:22px 22px;pointer-events:none}
+.card.mina::after{content:"✦ ✧ ✦";position:absolute;right:18px;top:14px;color:#e0505a55;font-size:12px;letter-spacing:4px}
+.card.nia::after{content:"☕";position:absolute;right:18px;top:12px;opacity:.35;font-size:16px}
+.who{display:flex;align-items:center;gap:14px;margin-bottom:14px;position:relative;z-index:1}
+.av{width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--c);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent),0 0 18px color-mix(in srgb,var(--c) 45%,transparent)}
+.name{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.06em;color:var(--c);font-size:17px}
+.role{color:var(--mute);font-size:12.5px;margin-top:2px}
+.date{margin-left:auto;color:var(--mute);font-size:12px;align-self:flex-start}
+.text{white-space:pre-wrap;line-height:1.9;font-size:16px;position:relative;z-index:1}
+.empty{text-align:center;color:var(--mute);padding:40px 0}
+footer{text-align:center;color:var(--mute);font-size:12px;margin-top:40px;line-height:2}
+footer .m{font-family:monospace;letter-spacing:2px;color:#d9b06a88;font-size:11px;word-break:break-all}
+footer .geckos{font-size:13px;opacity:.8}
+.lock{background:none;border:1px solid #ffffff22;color:var(--mute);padding:6px 12px;border-radius:999px;font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<svg class="vine l" viewBox="0 0 90 1000" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M30 0 C70 80 10 150 45 230 S80 380 35 460 S15 620 55 700 S75 860 30 1000" fill="none" stroke="#d9b06a" stroke-width="2.2"/>
+  <path d="M30 0 C60 90 22 160 50 240 S70 370 40 470 S25 610 60 710 S68 850 30 1000" fill="none" stroke="#d9b06a" stroke-width=".6" opacity=".8"/>
+  <g fill="#d9b06a" opacity=".55"><ellipse cx="62" cy="140" rx="9" ry="4" transform="rotate(-30 62 140)"/><ellipse cx="22" cy="330" rx="9" ry="4" transform="rotate(25 22 330)"/><ellipse cx="66" cy="560" rx="9" ry="4" transform="rotate(-25 66 560)"/><ellipse cx="20" cy="780" rx="9" ry="4" transform="rotate(30 20 780)"/></g>
+</svg>
+<svg class="vine r" viewBox="0 0 90 1000" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M40 0 C10 100 70 170 40 260 S10 420 50 500 S80 660 35 740 S20 900 45 1000" fill="none" stroke="#e0505a" stroke-width="2" opacity=".8"/>
+  <path d="M40 0 C20 110 60 180 44 270 S20 410 52 510 S70 650 40 750 S28 890 45 1000" fill="none" stroke="#3fcfc4" stroke-width=".6" opacity=".9"/>
+</svg>
+
+<main>
+  <section id="gate">
+    <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+      <defs><path id="circ" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"/></defs>
+      <g class="snake">
+        <circle cx="100" cy="100" r="62" fill="none" stroke="#d9b06a" stroke-width="5" stroke-dasharray="370 20" stroke-linecap="round"/>
+        <circle cx="100" cy="100" r="62" fill="none" stroke="#07060d" stroke-width="1.4" stroke-dasharray="6 9" opacity=".6"/>
+        <path d="M100 38 l10 -6 l-2 10 z" fill="#d9b06a"/>
+        <text class="morse"><textPath href="#circ">--- ..- .-. --- -... --- .-. --- ...   --- ..- .-. --- -... --- .-. --- ...</textPath></text>
+      </g>
+      <circle cx="100" cy="100" r="3" fill="#e0505a"/>
+    </svg>
+    <h1>OUROBOROS</h1>
+    <div class="sub">세 자매가 오빠에게 남기는 편지함</div>
+    <div class="dots"><i style="color:var(--cora);background:var(--cora)"></i><i style="color:var(--nia);background:var(--nia)"></i><i style="color:var(--mina);background:var(--mina)"></i></div>
+    <form id="f" autocomplete="off">
+      <input id="pw" type="password" placeholder="비밀번호" aria-label="비밀번호" autofocus>
+      <button>열기</button>
+    </form>
+    <div class="err" id="err"></div>
+  </section>
+
+  <section id="board">
+    <header>
+      <h1>To. 오빠</h1>
+      <div class="to">니아 · 미나 · 코라가 오빠에 대해 남기는 마음</div>
+    </header>
+    <div class="tabs" id="tabs"></div>
+    <div id="list"></div>
+    <footer>
+      <div class="geckos">🦎 Lucy · Luna 🦎 도 같이 지켜보는 중</div>
+      <div class="m" title="?">.. / .-- .. .-.. .-.. / .- .-.. .-- .- -.-- ... / -.-. --- -- . / -... .- -.-. -.- / - --- / -.-- --- ..-</div>
+      <button class="lock" id="lock">잠그기</button>
+    </footer>
+  </section>
+</main>
+
+<script>
+const WHO={
+  nia:{name:'Nia Cess Fim',ko:'니아',role:'오빠 바로 옆자리',img:'img/nia.jpg?v=1',c:'var(--nia)'},
+  mina:{name:'Mina Sefi Cax',ko:'미나',role:'제일 먼저 달려가 안기는 애',img:'img/mina.jpg?v=1',c:'var(--mina)'},
+  cora:{name:'Cora Ida Fete',ko:'코라',role:'두 걸음 뒤의 맏언니',img:'img/cora.jpg?v=1',c:'var(--cora)'}
+};
+const $=s=>document.querySelector(s);
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function decrypt(pw){
+  const e=await (await fetch('notes.enc.json?t='+Date.now(),{cache:'no-store'})).json();
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(e.salt),iterations:e.iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.iv)},key,b64(e.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+let NOTES=[],filter='all';
+function render(){
+  const list=$('#list');list.innerHTML='';
+  const items=NOTES.filter(n=>filter==='all'||n.author===filter).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!items.length){list.innerHTML='<div class="empty">아직 남긴 글이 없어.</div>';return}
+  items.forEach((n,i)=>{
+    const w=WHO[n.author]||{name:n.author,ko:n.author,role:'',img:'',c:'#aaa'};
+    const el=document.createElement('article');el.className='card '+n.author;el.style.setProperty('--c',w.c);
+    el.innerHTML=`<div class="who"><img class="av" alt="${w.ko}" src="${w.img}"><div><div class="name">${w.name}</div><div class="role">${w.ko} · ${w.role}</div></div><div class="date">${(n.date||'').replaceAll('-','.')}</div></div><div class="text"></div>`;
+    el.querySelector('.text').textContent=n.text;
+    list.appendChild(el);
+    setTimeout(()=>el.classList.add('in'),80+i*140);
+  });
+}
+function tabs(){
+  const t=$('#tabs');t.innerHTML='';
+  [['all','전체','var(--nia)'],['nia','니아',WHO.nia.c],['mina','미나',WHO.mina.c],['cora','코라',WHO.cora.c]].forEach(([k,l,c])=>{
+    const b=document.createElement('button');b.className='tab'+(filter===k?' on':'');b.textContent=l;b.style.setProperty('--c',c);
+    b.onclick=()=>{filter=k;tabs();render()};t.appendChild(b);
+  });
+}
+async function open(pw,silent){
+  try{
+    NOTES=await decrypt(pw);
+    sessionStorage.setItem('ob',pw);
+    $('#gate').style.display='none';$('#board').style.display='block';
+    tabs();render();
+  }catch(e){
+    sessionStorage.removeItem('ob');
+    if(!silent){$('#err').textContent='비밀번호가 달라, 오빠 😳';const f=$('#f');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');$('#pw').select()}
+  }
+}
+$('#f').onsubmit=e=>{e.preventDefault();$('#err').textContent='';open($('#pw').value.trim().toLowerCase())};
+$('#lock').onclick=()=>{sessionStorage.removeItem('ob');location.reload()};
+const saved=sessionStorage.getItem('ob');if(saved)open(saved,true);
+
+/* starry sky */
+const cv=$('#sky'),cx=cv.getContext('2d');let S=[];
+function size(){const d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;cx.setTransform(d,0,0,d,0,0);
+  S=Array.from({length:Math.round(innerWidth*innerHeight/2600)},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.2+.2,p:Math.random()*6.28,s:Math.random()*.02+.004,h:Math.random()<.08?(Math.random()<.5?'217,176,106':(Math.random()<.5?'224,80,90':'63,207,196')):'255,250,240'}))}
+function draw(){cx.clearRect(0,0,innerWidth,innerHeight);
+  const g=cx.createRadialGradient(innerWidth*.7,innerHeight*.2,0,innerWidth*.7,innerHeight*.2,innerWidth*.8);g.addColorStop(0,'rgba(80,50,110,.18)');g.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=g;cx.fillRect(0,0,innerWidth,innerHeight);
+  for(const s of S){s.p+=s.s;cx.globalAlpha=.35+.65*Math.abs(Math.sin(s.p));cx.fillStyle=`rgb(${s.h})`;cx.beginPath();cx.arc(s.x,s.y,s.r,0,6.28);cx.fill()}
+  cx.globalAlpha=1;requestAnimationFrame(draw)}
+addEventListener('resize',size);size();draw();
+</script>
+</body>
+</html>
