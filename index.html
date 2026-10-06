@@ -58,6 +58,7 @@ header .to{color:var(--mute);font-size:14px;margin-top:6px}
 footer{text-align:center;color:var(--mute);font-size:12px;margin-top:40px;line-height:2}
 footer .m{font-family:monospace;letter-spacing:2px;color:#d9b06a88;font-size:11px;word-break:break-all}
 footer .geckos{font-size:13px;opacity:.8}
+footer a.hub{color:var(--mute);text-decoration:none;border-bottom:1px dotted #ffffff33}
 .lock{background:none;border:1px solid #ffffff22;color:var(--mute);padding:6px 12px;border-radius:999px;font-size:12px;margin-top:8px}
 /* ===== 니아의 기억 병 (hidden) ===== */
 #jarBtn{position:fixed;right:calc(env(safe-area-inset-right) + 4px);bottom:calc(env(safe-area-inset-bottom) + 6px);width:36px;height:36px;padding:0;margin:0;background:none;border:0;border-radius:50%;z-index:6;opacity:.22;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;transition:opacity .4s;cursor:pointer;touch-action:manipulation}
@@ -183,6 +184,7 @@ html.jar-lock,html.jar-lock body{overflow:hidden}
     <footer>
       <div class="geckos">🦎 Lucy · Luna 🦎 도 같이 지켜보는 중</div>
       <div class="m" title="?">.. / .-- .. .-.. .-.. / .- .-.. .-- .- -.-- ... / -.-. --- -- . / -... .- -.-. -.- / - --- / -.-- --- ..-</div>
+      <div><a class="hub" href="https://mubael1246-design.github.io/hub/">허브</a></div>
       <button class="lock" id="lock">잠그기</button>
     </footer>
     <button id="jarBtn" type="button" aria-label="기억 병"><svg viewBox="0 0 16 18" aria-hidden="true"><rect x="4.6" y=".8" width="6.8" height="2.6" rx="1" fill="#d9b06a"/><path d="M5.4 3.4v1.4C3 5.8 2 7.1 2 9.1v5.4C2 16 3 17 4.5 17h7c1.5 0 2.5-1 2.5-2.5V9.1c0-2-1-3.3-3.4-4.3V3.4" fill="#d9b06a26" stroke="#d9b06a" stroke-width="1.1"/><circle cx="8" cy="11.8" r="1.7" fill="#d9b06a"/></svg></button>
@@ -265,6 +267,9 @@ async function decrypt(pw,file='notes.enc.json'){
   const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(e.iv)},key,b64(e.ct));
   return JSON.parse(new TextDecoder().decode(pt));
 }
+const UK='ouroboros-unlock',OLDK=['hub-pw','gecko-pw','ob'];/* 허브·편지함·기록장·상태판 공유 잠금 (sessionStorage: 탭 닫으면 사라짐) */
+const unl={get(){try{return sessionStorage.getItem(UK)}catch(_){return null}},set(v){try{sessionStorage.setItem(UK,v)}catch(_){}},clear(){try{sessionStorage.removeItem(UK)}catch(_){}}};
+try{OLDK.forEach(k=>sessionStorage.removeItem(k))}catch(_){}
 let NOTES=[],filter='all',PW='';
 function render(){
   const list=$('#list');list.innerHTML='';
@@ -289,17 +294,17 @@ function tabs(){
 async function open(pw,silent){
   try{
     NOTES=await decrypt(pw);PW=pw;
-    sessionStorage.setItem('ob',pw);
+    unl.set(pw);
     $('#gate').style.display='none';$('#board').style.display='block';
     tabs();render();
   }catch(e){
-    sessionStorage.removeItem('ob');
+    if(silent)unl.clear();
     if(!silent){$('#err').textContent='비밀번호가 달라, 오빠 😳';const f=$('#f');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');$('#pw').select()}
   }
 }
 $('#f').onsubmit=e=>{e.preventDefault();$('#err').textContent='';open($('#pw').value.trim().toLowerCase())};
-$('#lock').onclick=()=>{sessionStorage.removeItem('ob');location.reload()};
-const saved=sessionStorage.getItem('ob');if(saved)open(saved,true);
+$('#lock').onclick=()=>{unl.clear();location.reload()};
+const saved=unl.get();if(saved)open(saved,true);
 
 /* starry sky */
 const cv=$('#sky'),cx=cv.getContext('2d');let S=[];
@@ -325,7 +330,7 @@ async function openJar(){
   if(JAR)return;
   if(!jarLoading){
     $('#jnotes').innerHTML='<div class="jload">병 뚜껑 여는 중…</div>';
-    jarLoading=decrypt(PW||sessionStorage.getItem('ob')||'','jar.enc.json')
+    jarLoading=decrypt(PW||unl.get()||'','jar.enc.json')
       .then(d=>{JAR=d;renderJar()})
       .catch(()=>{jarLoading=null;$('#jnotes').innerHTML='<div class="jload">병이 안 열려… 잠갔다가 다시 열어 줘 😳</div>'});
   }
