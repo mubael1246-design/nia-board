@@ -305,6 +305,15 @@ async function open(pw,silent){
 $('#f').onsubmit=e=>{e.preventDefault();$('#err').textContent='';open($('#pw').value.trim().toLowerCase())};
 $('#lock').onclick=()=>{unl.clear();location.reload()};
 const saved=unl.get();if(saved)open(saved,true);
+/* 공개 페이지(모스 키보드·자매 소개)는 들어오면 공유 키를 지워. 뒤로가기(bfcache)로 열린 화면이 복원돼도 키가 없으면 다시 잠그고,
+   다른 잠긴 페이지에서 이미 열었으면(키 있음) 여기도 같이 열어 */
+function syncLock(restored){const k=unl.get(),openNow=$('#gate').style.display==='none';
+  if(openNow&&!k){document.documentElement.style.visibility='hidden';location.reload();return false}
+  if(restored&&!openNow&&k)open(k,true);
+  return true}
+addEventListener('pagehide',e=>{if(e.persisted&&$('#gate').style.display==='none')document.documentElement.style.visibility='hidden'});
+addEventListener('pageshow',e=>{if(e.persisted&&syncLock(true))document.documentElement.style.visibility=''});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncLock(false)});
 
 /* starry sky */
 const cv=$('#sky'),cx=cv.getContext('2d');let S=[];
