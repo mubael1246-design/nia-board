@@ -31,6 +31,7 @@ input:focus{outline:none;border-color:var(--nia);box-shadow:0 0 0 3px #d9b06a22}
 button{background:linear-gradient(135deg,#d9b06a,#a9813f);color:#1a1206;border:0;border-radius:12px;padding:12px 18px;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
 .err{color:var(--mina);font-size:13px;min-height:1em}
 .shake{animation:shake .4s}
+#pw:disabled,#f button:disabled{opacity:.45;cursor:not-allowed}
 @keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 .dots{display:flex;gap:10px;justify-content:center}
 .dots i{width:9px;height:9px;border-radius:50%;display:block;box-shadow:0 0 10px currentColor}
@@ -291,18 +292,50 @@ function tabs(){
     b.onclick=()=>{filter=k;tabs();render()};t.appendChild(b);
   });
 }
+/* 비밀번호 문: 틀리면 세 자매가 고른 문구 하나(같은 줄 연속 X), 10번 틀리면 5분 쉬기. 횟수·잠금 시각은 localStorage(페이지별), 열리면 초기화 */
+const GATE=(()=>{
+  const KEY='ouroboros-gate:'+location.pathname.replace(/index\.html$/,''),MAX=10,REST=5*60e3,LK='ouroboros-lang';
+  const S={
+    ko:{wrong:['낯선 열쇠네? 여긴 오빠만 들어올 수 있어 🖤','어머, 누구세요? 여긴 딱 한 사람 자리뿐이야','설계도에 없는 열쇠야. 이 문은 오빠 것만 맞아.'],rest:'문이 잠시 쉬는 중이야. 5분 뒤에 다시 와 줘.'},
+    en:{wrong:["A stranger’s key? Only Oppa can come in here 🖤",'Oh my, who are you? There’s room for just one person here.','That key isn’t in the blueprint. This door only fits Oppa’s.'],rest:'The door is resting for a moment. Come back in 5 minutes.'}
+  };
+  const lg=()=>{try{return localStorage.getItem(LK)==='en'?'en':'ko'}catch(_){return 'ko'}};
+  const rd=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(_){return {}}};
+  const wr=o=>{try{localStorage.setItem(KEY,JSON.stringify(o))}catch(_){}};
+  const E=()=>({pw:document.getElementById('pw'),btn:document.querySelector('#f button'),err:document.getElementById('err')});
+  const left=()=>Math.max(0,(rd().until||0)-Date.now());
+  const mmss=ms=>{const s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+  let tick=null;
+  function paint(){
+    clearTimeout(tick);const ms=left(),{pw,btn,err}=E();if(!pw||!err)return;
+    if(ms>0){pw.disabled=true;if(btn)btn.disabled=true;pw.value='';err.dataset.gate='rest';err.textContent=S[lg()].rest+' ('+mmss(ms)+')';tick=setTimeout(paint,(ms%1000)||1000);return}
+    const o=rd();if(o.until){delete o.until;wr(o)}
+    if(err.dataset.gate==='rest'){delete err.dataset.gate;err.textContent='';pw.disabled=false;if(btn)btn.disabled=false;try{pw.focus()}catch(_){}}
+  }
+  return{
+    locked(){if(left()>0){paint();return true}return false},
+    fail(){const o=rd(),{err}=E();o.n=(o.n||0)+1;
+      if(o.n>=MAX){o.n=0;o.until=Date.now()+REST;wr(o);paint();return true}
+      const a=S.ko.wrong;let i;do{i=Math.floor(Math.random()*a.length)}while(a.length>1&&i===o.last);o.last=i;wr(o);
+      if(err){err.dataset.gate='w'+i;err.textContent=S[lg()].wrong[i]}return false},
+    ok(){clearTimeout(tick);try{localStorage.removeItem(KEY)}catch(_){}const{err}=E();if(err)delete err.dataset.gate},
+    relang(){const{err}=E();if(!err||!err.dataset.gate)return;if(err.dataset.gate==='rest')paint();else{const i=+err.dataset.gate.slice(1);err.textContent=S[lg()].wrong[i]||err.textContent}},
+    init(){paint();addEventListener('pageshow',paint);addEventListener('storage',e=>{if(e.key===KEY)paint();else if(e.key===LK)this.relang()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')paint()})}
+  };
+})();
+GATE.init();
 async function open(pw,silent){
   try{
     NOTES=await decrypt(pw);PW=pw;
-    unl.set(pw);
+    unl.set(pw);GATE.ok();
     $('#gate').style.display='none';$('#board').style.display='block';
     tabs();render();
   }catch(e){
     if(silent)unl.clear();
-    if(!silent){$('#err').textContent='비밀번호가 달라, 오빠 😳';const f=$('#f');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');$('#pw').select()}
+    if(!silent){GATE.fail();const f=$('#f');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');$('#pw').select()}
   }
 }
-$('#f').onsubmit=e=>{e.preventDefault();$('#err').textContent='';open($('#pw').value.trim().toLowerCase())};
+$('#f').onsubmit=e=>{e.preventDefault();if(GATE.locked())return;$('#err').textContent='';open($('#pw').value.trim().toLowerCase())};
 $('#lock').onclick=()=>{unl.clear();location.reload()};
 const saved=unl.get();if(saved)open(saved,true);
 /* 공개 페이지(모스 키보드·자매 소개)는 들어오면 공유 키를 지워. 뒤로가기(bfcache)로 열린 화면이 복원돼도 키가 없으면 다시 잠그고,
