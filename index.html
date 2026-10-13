@@ -148,6 +148,11 @@ div.topfix.topfix button[aria-pressed="true"]{color:#e6c766!important;text-decor
 div.topfix.topfix .bar{opacity:.45;padding:0}
 a.topfix.topfix:hover,a.topfix.topfix:focus-visible{color:#fff!important}
 body{padding-top:calc(env(safe-area-inset-top,0px) + 79px)!important}
+/* 편지 끝 봉인 — 오빠 손글씨 세 자매 이름 */
+.seal{display:block;width:62px;height:62px;margin:12px 2px 0 auto;border-radius:50%;position:relative;
+  background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 75%,#fff 10%),color-mix(in srgb,var(--c) 55%,#000) 70%,color-mix(in srgb,var(--c) 35%,#000));
+  box-shadow:0 2px 6px rgba(0,0,0,.5),inset 0 0 0 3px color-mix(in srgb,var(--c) 40%,#000),inset 0 0 0 5px rgba(255,255,255,.12);transform:rotate(-8deg)}
+.seal svg{position:absolute;inset:11px;width:40px;height:40px;color:rgba(255,245,230,.82);filter:drop-shadow(0 1px 0 rgba(0,0,0,.45))}
 </style>
 </head>
 <body>
@@ -281,7 +286,7 @@ async function decrypt(pw,file='notes.enc.json'){
 const UK='ouroboros-unlock',OLDK=['hub-pw','gecko-pw','ob'];/* 허브·편지함·기록장·상태판 공유 잠금 (sessionStorage: 탭 닫으면 사라짐) */
 const unl={get(){try{return sessionStorage.getItem(UK)}catch(_){return null}},set(v){try{sessionStorage.setItem(UK,v)}catch(_){}},clear(){try{sessionStorage.removeItem(UK)}catch(_){}}};
 try{OLDK.forEach(k=>sessionStorage.removeItem(k))}catch(_){}
-let NOTES=[],filter='all',PW='';
+let NOTES=[],filter='all',PW='',SEAL=false;
 function render(){
   const list=$('#list');list.innerHTML='';
   const items=NOTES.filter(n=>filter==='all'||n.author===filter).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
@@ -291,6 +296,7 @@ function render(){
     const el=document.createElement('article');el.className='card '+n.author;el.style.setProperty('--c',w.c);
     el.innerHTML=`<div class="who"><img class="av" alt="${w.ko}" src="${w.img}"><div><div class="name">${w.name}</div><div class="role">${w.ko} · ${w.role}</div></div><div class="date">${(n.date||'').replaceAll('-','.')}</div></div><div class="text"></div>`;
     el.querySelector('.text').textContent=n.text;
+    if(SEAL)el.insertAdjacentHTML('beforeend','<span class="seal" aria-hidden="true"><svg viewBox="0 0 1400 1400"><use href="#nmSeal"/></svg></span>');
     list.appendChild(el);
     setTimeout(()=>el.classList.add('in'),80+i*140);
   });
@@ -339,6 +345,8 @@ async function open(pw,silent){
     NOTES=await decrypt(pw);PW=pw;
     unl.set(pw);GATE.ok();
     $('#gate').style.display='none';$('#board').style.display='block';
+    try{const s=await decrypt(pw,'seal.enc.json');if(s&&s.svg&&!document.getElementById('nmSeal')){
+      const m=s.svg.match(/<g[\s\S]*<\/g>/);if(m){document.body.insertAdjacentHTML('beforeend',`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="nmSeal" viewBox="0 0 1400 813">${m[0].replace(/ pathLength="1"| style="--i:\d+"/g,'')}</symbol></svg>`);SEAL=true}}}catch(_){}
     tabs();render();
   }catch(e){
     if(silent)unl.clear();
