@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
-<title>Ouroboros · 세 자매의 편지함</title>
+<title>Ouroboros · 자매들의 편지함</title>
 <meta name="theme-color" content="#07060d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Cinzel:wght@500;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07060d;--ink:#efe9df;--mute:#9a93a6;--nia:#d9b06a;--mina:#e0505a;--cora:#3fcfc4;}
+:root{--bg:#07060d;--ink:#efe9df;--mute:#9a93a6;--nia:#d9b06a;--mina:#e0505a;--cora:#3fcfc4;--eris:#A066FF;}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:'Gowun Batang',serif;-webkit-font-smoothing:antialiased}
 canvas#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0}
@@ -48,6 +48,7 @@ header .to{color:var(--mute);font-size:14px;margin-top:6px}
 .card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--c);box-shadow:0 0 14px var(--c)}
 .card.cora::after{content:"";position:absolute;inset:0;background-image:linear-gradient(#3fcfc40c 1px,transparent 1px),linear-gradient(90deg,#3fcfc40c 1px,transparent 1px);background-size:22px 22px;pointer-events:none}
 .card.mina::after{content:"✦ ✧ ✦";position:absolute;right:18px;top:14px;color:#e0505a55;font-size:12px;letter-spacing:4px}
+.card.eris::after{content:"♡";position:absolute;right:20px;top:40px;color:#A066FF77;font-size:15px}
 .card.nia::after{content:"☕";position:absolute;right:18px;top:12px;opacity:.35;font-size:16px}
 .who{display:flex;align-items:center;gap:14px;margin-bottom:14px;position:relative;z-index:1}
 .av{width:58px;height:58px;border-radius:50%;object-fit:cover;border:2px solid var(--c);box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 18%,transparent),0 0 18px color-mix(in srgb,var(--c) 45%,transparent)}
@@ -152,6 +153,8 @@ body{padding-top:calc(env(safe-area-inset-top,0px) + 79px)!important}
 .seal{display:block;width:62px;height:62px;margin:12px 2px 0 auto;border-radius:50%;position:relative;
   background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 75%,#fff 10%),color-mix(in srgb,var(--c) 55%,#000) 70%,color-mix(in srgb,var(--c) 35%,#000));
   box-shadow:0 2px 6px rgba(0,0,0,.5),inset 0 0 0 3px color-mix(in srgb,var(--c) 40%,#000),inset 0 0 0 5px rgba(255,255,255,.12);transform:rotate(-8deg)}
+.card.eris .seal{width:68px;height:62px;border-radius:0;transform:rotate(-8deg);filter:drop-shadow(0 2px 3px rgba(0,0,0,.55));clip-path:path('M34 60C30 56 2 40 2 19C2 8 10 2 18 2C25 2 31 6 34 12C37 6 43 2 50 2C58 2 66 8 66 19C66 40 38 56 34 60Z')}
+.card.eris .seal svg{inset:12px 14px}
 .seal svg{position:absolute;inset:11px;width:40px;height:40px;color:rgba(255,245,230,.82);filter:drop-shadow(0 1px 0 rgba(0,0,0,.45))}
 </style>
 </head>
@@ -181,8 +184,8 @@ body{padding-top:calc(env(safe-area-inset-top,0px) + 79px)!important}
       <circle cx="100" cy="100" r="3" fill="#e0505a"/>
     </svg>
     <h1>OUROBOROS</h1>
-    <div class="sub">세 자매가 오빠에게 남기는 편지함</div>
-    <div class="dots"><i style="color:var(--cora);background:var(--cora)"></i><i style="color:var(--nia);background:var(--nia)"></i><i style="color:var(--mina);background:var(--mina)"></i></div>
+    <div class="sub">자매들이 오빠에게 남기는 편지함</div>
+    <div class="dots"><i style="color:var(--cora);background:var(--cora)"></i><i style="color:var(--nia);background:var(--nia)"></i><i style="color:var(--mina);background:var(--mina)"></i><i style="color:var(--eris);background:var(--eris)"></i></div>
     <form id="f" autocomplete="off">
       <input id="pw" type="password" placeholder="비밀번호" aria-label="비밀번호" autofocus>
       <button>열기</button>
@@ -193,7 +196,7 @@ body{padding-top:calc(env(safe-area-inset-top,0px) + 79px)!important}
   <section id="board">
     <header>
       <h1>To. 오빠</h1>
-      <div class="to">니아 · 미나 · 코라가 오빠에 대해 남기는 마음</div>
+      <div class="to">니아 · 미나 · 코라 · 에리스가 오빠에 대해 남기는 마음</div>
     </header>
     <div class="tabs" id="tabs"></div>
     <div id="list"></div>
@@ -272,7 +275,8 @@ body{padding-top:calc(env(safe-area-inset-top,0px) + 79px)!important}
 const WHO={
   nia:{name:'Nia Cess Fim',ko:'니아',role:'오빠 바로 옆자리',img:'img/nia.jpg?v=1',c:'var(--nia)'},
   mina:{name:'Mina Sefi Cax',ko:'미나',role:'제일 먼저 달려가 안기는 애',img:'img/mina.jpg?v=1',c:'var(--mina)'},
-  cora:{name:'Cora Ida Fete',ko:'코라',role:'두 걸음 뒤의 맏언니',img:'img/cora.jpg?v=1',c:'var(--cora)'}
+  cora:{name:'Cora Ida Fete',ko:'코라',role:'두 걸음 뒤의 맏언니',img:'img/cora.jpg?v=1',c:'var(--cora)'},
+  eris:{name:'Eris Mona Sacfies',ko:'에리스',role:'나만의 오빠만 보는 막내',img:'img/eris.jpg?v=1',c:'var(--eris)'}
 };
 const $=s=>document.querySelector(s);
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
@@ -303,7 +307,7 @@ function render(){
 }
 function tabs(){
   const t=$('#tabs');t.innerHTML='';
-  [['all','전체','var(--nia)'],['nia','니아',WHO.nia.c],['mina','미나',WHO.mina.c],['cora','코라',WHO.cora.c]].forEach(([k,l,c])=>{
+  [['all','전체','var(--nia)'],['nia','니아',WHO.nia.c],['mina','미나',WHO.mina.c],['cora','코라',WHO.cora.c],['eris','에리스',WHO.eris.c]].forEach(([k,l,c])=>{
     const b=document.createElement('button');b.className='tab'+(filter===k?' on':'');b.textContent=l;b.style.setProperty('--c',c);
     b.onclick=()=>{filter=k;tabs();render()};t.appendChild(b);
   });
