@@ -314,7 +314,7 @@ function pageHTML(k){
   const ps=BOOKS[k],w=WHO[k],corner=w.corner?`<span class="corner">${w.corner}</span>`:'';
   if(!ps.length)return `<div class="pg empty1"><div class="sc"><div class="nm">${w.en}</div><div class="orn"></div><div class="ln">아직 쓰지 않은 첫 장</div></div>${corner}</div>`;
   const p=ps[idx],num=`<span class="num">${idx+1} / ${ps.length}</span>`;
-  if(p.hidden)return `<div class="pg hid"><div class="sc"><span class="padlock"></span><div class="msg">잠긴 쪽</div></div>${num}${corner}</div>`;
+  if(p.hidden)return `<div class="pg hid"><div class="sc"><div class="d">${esc(p.date||'')}</div><span class="padlock"></span><div class="msg">잠긴 쪽</div></div>${num}${corner}</div>`;
   return `<div class="pg"><div class="sc"><div class="d">${esc(p.date||'')}</div><div class="t">${esc(p.text||'')}</div></div>${num}${corner}</div>`;
 }
 function tuckHTML(k){
