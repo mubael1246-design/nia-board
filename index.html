@@ -65,6 +65,8 @@ h1{font-family:'Cinzel',serif;font-weight:500;text-align:center;letter-spacing:.
 .open{position:relative;width:min(92vw,400px);height:min(100%,600px);transform-style:preserve-3d}
 .open .cover{position:absolute;inset:0;border-radius:4px 12px 12px 4px;background:var(--cv);transform-origin:left center;transition:transform .9s cubic-bezier(.6,.05,.3,1);z-index:5;backface-visibility:hidden;box-shadow:0 20px 40px #000c}
 #view.opened .open .cover{transform:rotateY(-170deg)}
+#view.settled .open{transform-style:flat}
+#view.settled .open .cover{visibility:hidden}
 .paper{position:absolute;inset:0;border-radius:3px 10px 10px 3px;overflow:hidden;box-shadow:0 20px 40px #000c,inset 10px 0 18px -10px #0006;transform-origin:left center;background:var(--pp);color:var(--pi)}
 .paper.flip,.paper.flipb{-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .paper.flip{animation:flip .55s cubic-bezier(.5,0,.3,1)}
@@ -327,7 +329,7 @@ function openBook(k){
   cur=k;idx=0;const v=$('#view');v.className='on';
   v.innerHTML=`<div class="${k}" style="display:contents"><div class="open"><div class="who">${WHO[k].ko}의 일기장</div><div class="paper" id="paper">${pageHTML(k)}</div>${tuckHTML(k)}<div class="cover"><span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span></div><span class="rib"></span></div></div>`;
   v.querySelectorAll('.env').forEach(e=>e.onclick=ev=>{ev.stopPropagation();openLetter(+e.dataset.i)});
-  requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.add('opened')));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{v.classList.add('opened');setTimeout(()=>{if(v.classList.contains('opened'))v.classList.add('settled')},950)}));
   $('#nav').hidden=false;navState();
 }
 function letterHTML(){const l=LET[cur][li],w=WHO[cur];
@@ -341,7 +343,7 @@ function turn(d){
   const p=$('#paper');p.classList.remove('flip','flipb');void p.offsetWidth;p.classList.add(d>0?'flip':'flipb');
   setTimeout(()=>{idx=j;p.innerHTML=pageHTML(cur);navState()},270);
 }
-function closeBook(){if(li>=0){closeLetter();return}const v=$('#view');v.classList.remove('opened');$('#nav').hidden=true;setTimeout(()=>{v.className='';v.innerHTML='';cur=null},500)}
+function closeBook(){if(li>=0){closeLetter();return}const v=$('#view');v.classList.remove('settled');void v.offsetWidth;v.classList.remove('opened');$('#nav').hidden=true;setTimeout(()=>{v.className='';v.innerHTML='';cur=null},500)}
 $('#letter').addEventListener('click',e=>{if(e.target.id==='letter')closeLetter()});
 $('#prev').onclick=()=>turn(-1);$('#next').onclick=()=>turn(1);$('#close').onclick=closeBook;
 $('#view').addEventListener('click',e=>{if(e.target.id==='view')closeBook()});
