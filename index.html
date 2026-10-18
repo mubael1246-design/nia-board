@@ -215,6 +215,29 @@ html.jar-lock,html.jar-lock body{overflow:hidden}
 .jend .sig{font-size:21px;color:#e9c47c;margin-top:6px}
 @media (prefers-reduced-motion:reduce){#jar *,#jar{animation:none!important;transition:none!important}.greet .gl{clip-path:none}.jn{opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* image covers & papers (2026-10-18) */
+.nia{--ci:url(img/covers/nia-cover.jpg);--pimg:url(img/covers/nia-paper.jpg)}
+.mina{--ci:url(img/covers/mina-cover.jpg);--pimg:url(img/covers/mina-paper.jpg)}
+.eris{--ci:url(img/covers/eris-cover.jpg);--pimg:url(img/covers/eris-paper.jpg)}
+.cora{--ci:url(img/covers/cora-cover.jpg);--pimg:url(img/covers/cora-paper.jpg)}
+.book,.open .cover{background:var(--ci) center/cover no-repeat,var(--cv)}
+.book{box-shadow:0 8px 14px #000b}
+.book .emb,.book .lock,.book .ribbon,.book .cg,.open .cover .emb,.open .cover .cg{display:none!important}
+.book .ttl,.open .cover .ttl{position:absolute;bottom:auto;font-family:'OuroborosHand','Nanum Pen Script',cursive;color:var(--tc);pointer-events:none;line-height:1;text-align:center}
+.book .ttl{font-size:24px}.open .cover .ttl{font-size:60px}
+.nia .ttl{left:12%!important;right:30%!important;top:22%;text-shadow:0 1px 0 #fff8}
+.mina .ttl{left:0;right:0;top:42%;text-shadow:0 1px 3px #000a}
+.eris .ttl{left:0;right:0;top:34%;text-shadow:0 1px 3px #000}
+.book.eris .ttl{font-size:17px}.open .cover.eris .ttl,.eris .open .cover .ttl{font-size:40px}
+.cora .ttl{left:0;right:12%;top:16%;text-shadow:0 1px 3px #000a}
+.book .cnt{opacity:1;top:auto;bottom:6px;right:8px;font-size:10px;padding:1px 6px;border-radius:8px;background:#000a;color:#f3e6c8}
+.paper{background:var(--pimg) center/100% 100% no-repeat,var(--pp)}
+.pg .sc{padding:12% 13% 6% 13%}
+.cora .paper .pg .sc{background:rgba(245,236,215,.72) content-box;background-clip:content-box;border-radius:6px}
+.cora .paper .pg .sc{padding:12% 11% 6% 11%;border:0}
+.pg.hid:before{inset:6%}
+.mina .paper .pg .sc{padding:15% 16% 8% 16%}
 </style>
 </head>
 <body>
@@ -327,7 +350,7 @@ function tuckHTML(k){
 }
 function openBook(k){
   cur=k;idx=0;const v=$('#view');v.className='on';
-  v.innerHTML=`<div class="${k}" style="display:contents"><div class="open"><div class="who">${WHO[k].ko}의 일기장</div><div class="paper" id="paper">${pageHTML(k)}</div>${tuckHTML(k)}<div class="cover"><span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span></div><span class="rib"></span></div></div>`;
+  v.innerHTML=`<div class="${k}" style="display:contents"><div class="open"><div class="who">${WHO[k].ko}의 일기장</div><div class="paper" id="paper">${pageHTML(k)}</div>${tuckHTML(k)}<div class="cover"><span class="ttl">${WHO[k].en}</span><span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span></div><span class="rib"></span></div></div>`;
   v.querySelectorAll('.env').forEach(e=>e.onclick=ev=>{ev.stopPropagation();openLetter(+e.dataset.i)});
   requestAnimationFrame(()=>requestAnimationFrame(()=>{v.classList.add('opened');setTimeout(()=>{if(v.classList.contains('opened'))v.classList.add('settled')},950)}));
   $('#nav').hidden=false;navState();
