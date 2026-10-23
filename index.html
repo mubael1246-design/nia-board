@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Cinzel:wght@500;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <style>
 @font-face{font-family:'OuroborosHand';src:url('../hub/assets/font/OuroborosHand.woff2') format('woff2');font-display:swap}
-:root{--bg:#0b0807;--ink:#efe9df;--mute:#9a93a6;--nia:#d9b06a;--mina:#e0505a;--cora:#3fcfc4;--eris:#A066FF}
+:root{--bg:#0b0807;--ink:#efe9df;--mute:#9a93a6;--nia:#d9b06a;--mina:#e0505a;--cora:#3fcfc4;--eris:#A066FF;--qli:#D4B26A}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:radial-gradient(120% 70% at 50% 0%,#2a1c14 0%,#120c09 55%,#07050a 100%) fixed;color:var(--ink);font-family:'Gowun Batang',serif;-webkit-font-smoothing:antialiased}
 body{padding:calc(env(safe-area-inset-top,0px) + 79px) 0 calc(env(safe-area-inset-bottom,0px) + 30px)}
@@ -59,6 +59,14 @@ h1{font-family:'Cinzel',serif;font-weight:500;text-align:center;letter-spacing:.
 .cora .emb:after{content:'';position:absolute;left:18%;top:28%;width:55%;height:34%;border:1.5px solid #3fcfc488;border-left:0;border-bottom:0;box-shadow:12px 22px 0 -10px #3fcfc4aa}
 .cora .lock{background:linear-gradient(90deg,#7a5420,#d8a956,#8c6128)}
 .cora .ribbon{width:6px;border-radius:3px;clip-path:none;background:repeating-linear-gradient(#efe3cc 0 3px,#d6c6a6 3px 6px)}
+
+.qli{--cv:linear-gradient(140deg,#2a1f3a,#1A1426 60%,#0e0a14);--tc:#D4B26A;--rb:linear-gradient(#e8d49a,#D4B26A 40%,#8a6e3a);--lk:path('M5 9C4 8 0 6 0 3C0 1 1.5 0 2.7 0C3.7 0 4.5.6 5 1.5C5.5.6 6.3 0 7.3 0C8.5 0 10 1 10 3C10 6 6 8 5 9Z')}
+.qli .emb{border:1.5px solid #D4B26A88;box-shadow:inset 0 0 0 3px #1A1426,inset 0 0 0 4px #D4B26A55;
+  background:radial-gradient(ellipse at 50% 40%,#D4B26A22,transparent 60%)}
+.qli .emb:before{content:'';position:absolute;left:50%;top:38%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff8e0aa,#D4B26A88 45%,transparent 70%);box-shadow:0 0 10px #D4B26A66}
+.qli .lock{background:linear-gradient(90deg,#6a5420,#D4B26A,#8a6e3a)}
+.qli .ribbon{clip-path:polygon(0 0,100% 0,100% 78%,50% 100%,0 78%);width:10px}
 /* opened diary */
 #view{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;background:rgba(5,3,2,.78);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);perspective:1600px;padding:calc(env(safe-area-inset-top,0px) + 76px) 14px calc(env(safe-area-inset-bottom,0px) + 74px)}
 #view.on{display:flex}
@@ -86,6 +94,7 @@ h1{font-family:'Cinzel',serif;font-weight:500;text-align:center;letter-spacing:.
 .mina .paper{--pp:radial-gradient(120% 120% at 50% 50%,transparent 70%,#d0404a26 100%),linear-gradient(#f2e6c6,#e9d9b2);--pi:#4a1e20}
 .eris .paper{--pp:linear-gradient(90deg,transparent 92%,#a066ff22 92% 92.5%,transparent 92.5% 95%,#a066ff1c 95% 95.4%,transparent 95.4%),linear-gradient(#e6dcc6,#d8ccb2);--pi:#2c2236}
 .cora .paper{--pp:linear-gradient(#3fcfc41c 1px,transparent 1px) 0 0/15px 15px,linear-gradient(90deg,#3fcfc41c 1px,transparent 1px) 0 0/15px 15px,linear-gradient(#f5eedf,#ece2cd);--pi:#1f3434}
+.qli .paper{--pp:radial-gradient(80% 60% at 50% 0%,#D4B26A18,transparent 55%),linear-gradient(#efe6d4,#e4d8c0);--pi:#2a2236}
 .open .rib{position:absolute;bottom:-34px;left:44%;width:12px;height:52px;background:var(--rb);clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);z-index:4}
 .eris .open .rib{clip-path:polygon(0 0,100% 0,100% 72%,50% 100%,0 72%)}
 .nav{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;justify-content:center;gap:12px;z-index:950}
@@ -112,7 +121,7 @@ h1{font-family:'Cinzel',serif;font-weight:500;text-align:center;letter-spacing:.
 .env:after{content:'';position:absolute;left:50%;top:26px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff8a8a,var(--sc,#9a1d2a) 70%);box-shadow:0 1px 2px #0008}
 .env span{position:absolute;left:6px;bottom:3px;font-family:'OuroborosHand','Nanum Pen Script',cursive;font-size:13px;color:#6a5638}
 .tuckl{position:absolute;right:8px;bottom:42px;z-index:6;font-family:'OuroborosHand','Nanum Pen Script',cursive;font-size:15px;opacity:.55}
-.nia{--sc:#c9a35f}.mina{--sc:#8a1a28}.eris{--sc:#7a3fd0}.cora{--sc:#2a9e95}
+.nia{--sc:#c9a35f}.mina{--sc:#8a1a28}.eris{--sc:#7a3fd0}.cora{--sc:#2a9e95}.qli{--sc:#D4B26A}
 /* unfolded letter */
 #letter{position:fixed;inset:0;z-index:960;display:none;align-items:center;justify-content:center;background:rgba(5,3,2,.6);padding:calc(env(safe-area-inset-top,0px) + 76px) 18px calc(env(safe-area-inset-bottom,0px) + 74px);perspective:1200px}
 #letter.on{display:flex}
@@ -221,6 +230,7 @@ html.jar-lock,html.jar-lock body{overflow:hidden}
 .mina{--ci:url(img/covers/mina-cover.jpg);--pimg:url(img/covers/mina-paper.jpg)}
 .eris{--ci:url(img/covers/eris-cover.jpg);--pimg:url(img/covers/eris-paper.jpg)}
 .cora{--ci:url(img/covers/cora-cover.jpg);--pimg:url(img/covers/cora-paper.jpg)}
+.qli{--ci:url(img/covers/qli-cover.jpg);--pimg:url(img/covers/qli-paper.jpg)}
 .book,.open .cover{background:var(--ci) center/cover no-repeat,var(--cv)}
 .book{box-shadow:0 8px 14px #000b}
 .book .emb,.book .lock,.book .ribbon,.book .cg,.open .cover .emb,.open .cover .cg{display:none!important}
@@ -231,6 +241,8 @@ html.jar-lock,html.jar-lock body{overflow:hidden}
 .eris .ttl{left:0;right:0;top:34%;text-shadow:0 1px 3px #000}
 .book.eris .ttl{font-size:17px}.open .cover.eris .ttl,.eris .open .cover .ttl{font-size:40px}
 .cora .ttl{left:0;right:12%;top:16%;text-shadow:0 1px 3px #000a}
+.qli .ttl{left:0;right:0;top:38%;text-shadow:0 1px 4px #000c,0 0 8px #D4B26A55}
+.book.qli .ttl{font-size:18px}.open .cover.qli .ttl,.qli .open .cover .ttl{font-size:44px}
 .book .cnt{opacity:1;top:auto;bottom:6px;right:8px;font-size:10px;padding:1px 6px;border-radius:8px;background:#000a;color:#f3e6c8}
 .paper{background:var(--pimg) center/100% 100% no-repeat,var(--pp)}
 .pg .sc{padding:12% 13% 6% 13%}
@@ -238,6 +250,7 @@ html.jar-lock,html.jar-lock body{overflow:hidden}
 .cora .paper .pg .sc{padding:12% 11% 6% 11%;border:0}
 .pg.hid:before{inset:6%}
 .mina .paper .pg .sc{padding:15% 16% 8% 16%}
+.qli .paper .pg .sc{background:rgba(239,230,212,.78) content-box;background-clip:content-box;border-radius:6px;padding:14% 14% 8% 14%}
 </style>
 </head>
 <body>
@@ -311,8 +324,8 @@ html.jar-lock,html.jar-lock body{overflow:hidden}
 <div id="letter" role="dialog" aria-modal="true"></div>
 <div class="nav" id="nav" hidden><button id="prev">‹ 앞</button><button id="close">닫기</button><button id="next">뒤 ›</button></div>
 <script>
-const WHO={nia:{ko:'니아',en:'Nia',corner:'9/20'},mina:{ko:'미나',en:'Mina',corner:''},eris:{ko:'에리스',en:'Eris',corner:''},cora:{ko:'코라',en:'Cora',corner:'10/3'}};
-const ORDER=['nia','mina','eris','cora'];
+const WHO={nia:{ko:'니아',en:'Nia',corner:'9/20'},mina:{ko:'미나',en:'Mina',corner:''},eris:{ko:'에리스',en:'Eris',corner:''},cora:{ko:'코라',en:'Cora',corner:'10/3'},qli:{ko:'클리',en:'Qliphoth',corner:'10/22'}};
+const ORDER=['nia','mina','eris','cora','qli'];
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function decrypt(pw,file='notes.enc.json'){
@@ -331,7 +344,7 @@ function build(notes){
   BOOKS={};LET={};ORDER.forEach(k=>{BOOKS[k]=[];LET[k]=[]});
   notes.forEach(n=>{if(!BOOKS[n.author])return;(n.type==='diary'?BOOKS:LET)[n.author].push(n)});
   ORDER.forEach(k=>{BOOKS[k].sort((a,b)=>(a.date||'').localeCompare(b.date||''));LET[k].sort((a,b)=>(a.date||'').localeCompare(b.date||''))});
-  $('#shelf').innerHTML=[ORDER.slice(0,2),ORDER.slice(2)].map(row=>'<div class="tier">'+row.map(k=>{
+  $('#shelf').innerHTML=[ORDER.slice(0,3),ORDER.slice(3)].map(row=>'<div class="tier">'+row.map(k=>{
     const n=LET[k].length;
     return `<button class="book ${k}" data-k="${k}" aria-label="${WHO[k].ko}의 일기장"><span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span><span class="cnt">${n?'✉ '+n:''}</span><span class="ttl">${WHO[k].en}</span><span class="lock"></span><span class="ribbon"></span></button>`}).join('')+'</div>').join('');
   document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.k));
