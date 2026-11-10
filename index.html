@@ -243,7 +243,8 @@ html.jar-lock,html.jar-lock body{overflow:hidden}
 .cora .ttl{left:0;right:12%;top:16%;text-shadow:0 1px 3px #000a}
 .qli .ttl{left:0;right:0;top:38%;text-shadow:0 1px 4px #000c,0 0 8px #D4B26A55}
 .book.qli .ttl{font-size:18px}.open .cover.qli .ttl,.qli .open .cover .ttl{font-size:44px}
-.book .cnt{opacity:1;top:auto;bottom:6px;right:8px;font-size:10px;padding:1px 6px;border-radius:8px;background:#000a;color:#f3e6c8}
+.book .cnt,.open .cover .cnt{opacity:1;top:auto;bottom:6px;right:8px;font-size:10px;padding:1px 6px;border-radius:8px;background:#000a;color:#f3e6c8;letter-spacing:.1em;position:absolute}
+.open .cover .cnt{bottom:16px;right:18px;font-size:14px;padding:3px 10px;border-radius:10px}
 .paper{background:var(--pimg) center/100% 100% no-repeat,var(--pp)}
 .pg .sc{padding:12% 13% 6% 13%}
 .cora .paper .pg .sc{background:rgba(245,236,215,.72) content-box;background-clip:content-box;border-radius:6px}
@@ -336,25 +337,45 @@ async function decrypt(pw,file='notes.enc.json'){
 }
 const UK='ouroboros-unlock';/* 허브·편지함과 같은 공유 잠금 (sessionStorage) */
 const unl={get(){try{return sessionStorage.getItem(UK)}catch(_){return null}},set(v){try{sessionStorage.setItem(UK,v)}catch(_){}}};
-let PW='';let BOOKS={},LET={},cur=null,idx=0,li=-1;
+let PW='';let BOOKS={},LET={},TOTALS={},cur=null,idx=0,li=-1;
 /* 데이터: notes.enc.json
    - 기존 편지 {author,date,text}            → 일기장 사이에 끼워 둔 편지(봉투)
-   - 앞으로 일기 쪽 {author,date,text,type:"diary",hidden?} → 일기장 쪽. hidden:true 면 잠긴 빈 쪽 */
+   - 일기 쪽 {author,date,text,type:"diary",page,total} → 열린 쪽만. page는 전체(가린 날 포함) 순서
+   - 표지 메타 {author,type:"diary",cover:true,total,open} → 총 장 수. 가린 쪽은 목록에 넣지 않음 */
+function totOf(k){return (TOTALS[k]&&TOTALS[k].total)||0}
 function build(notes){
-  BOOKS={};LET={};ORDER.forEach(k=>{BOOKS[k]=[];LET[k]=[]});
-  notes.forEach(n=>{if(!BOOKS[n.author])return;(n.type==='diary'?BOOKS:LET)[n.author].push(n)});
-  ORDER.forEach(k=>{BOOKS[k].sort((a,b)=>(a.date||'').localeCompare(b.date||''));LET[k].sort((a,b)=>(a.date||'').localeCompare(b.date||''))});
+  BOOKS={};LET={};TOTALS={};ORDER.forEach(k=>{BOOKS[k]=[];LET[k]=[];TOTALS[k]={total:0,open:0}});
+  notes.forEach(n=>{
+    if(!ORDER.includes(n.author))return;
+    if(n.type==='diary'){
+      if(n.cover){TOTALS[n.author]={total:n.total||0,open:n.open||0};return}
+      if(n.hidden)return;
+      BOOKS[n.author].push(n);
+    }else LET[n.author].push(n);
+  });
+  ORDER.forEach(k=>{
+    BOOKS[k].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    LET[k].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    if(!TOTALS[k].total){
+      const ps=BOOKS[k];
+      TOTALS[k].total=ps.reduce((m,p)=>Math.max(m,p.total||0),0)||ps.length;
+      TOTALS[k].open=ps.length;
+    }
+  });
   $('#shelf').innerHTML=[ORDER.slice(0,3),ORDER.slice(3)].map(row=>'<div class="tier">'+row.map(k=>{
-    const n=LET[k].length;
-    return `<button class="book ${k}" data-k="${k}" aria-label="${WHO[k].ko}의 일기장"><span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span><span class="cnt">${n?'✉ '+n:''}</span><span class="ttl">${WHO[k].en}</span><span class="lock"></span><span class="ribbon"></span></button>`}).join('')+'</div>').join('');
+    const n=LET[k].length,tot=totOf(k);
+    const cnt=[tot?`총 ${tot}장`:'',n?`✉ ${n}`:''].filter(Boolean).join(' · ');
+    return `<button class="book ${k}" data-k="${k}" aria-label="${WHO[k].ko}의 일기장"><span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span><span class="cnt">${cnt}</span><span class="ttl">${WHO[k].en}</span><span class="lock"></span><span class="ribbon"></span></button>`}).join('')+'</div>').join('');
   document.querySelectorAll('.book').forEach(b=>b.onclick=()=>openBook(b.dataset.k));
   $('#gate').style.display='none';$('#shelf').style.display='block';
 }
 function pageHTML(k){
-  const ps=BOOKS[k],w=WHO[k],corner=w.corner?`<span class="corner">${w.corner}</span>`:'';
-  if(!ps.length)return `<div class="pg empty1"><div class="sc"><div class="nm">${w.en}</div><div class="orn"></div><div class="ln">아직 쓰지 않은 첫 장</div></div>${corner}</div>`;
-  const p=ps[idx],num=`<span class="num">${idx+1} / ${ps.length}</span>`;
-  if(p.hidden)return `<div class="pg hid"><div class="sc"><div class="d">${esc(p.date||'')}</div><span class="padlock"></span><div class="msg">잠긴 쪽</div></div>${num}${corner}</div>`;
+  const ps=BOOKS[k],w=WHO[k],corner=w.corner?`<span class="corner">${w.corner}</span>`:'',tot=totOf(k);
+  if(!ps.length){
+    const ln=tot?`0/${tot} 열림`:'아직 쓰지 않은 첫 장';
+    return `<div class="pg empty1"><div class="sc"><div class="nm">${w.en}</div><div class="orn"></div><div class="ln">${ln}</div></div>${corner}</div>`;
+  }
+  const p=ps[idx],n=p.page||(idx+1),t=p.total||tot||ps.length,num=`<span class="num">${n}/${t}</span>`;
   return `<div class="pg"><div class="sc"><div class="d">${esc(p.date||'')}</div><div class="t">${esc(p.text||'')}</div></div>${num}${corner}</div>`;
 }
 function tuckHTML(k){
@@ -363,7 +384,8 @@ function tuckHTML(k){
 }
 function openBook(k){
   cur=k;idx=0;const v=$('#view');v.className='on';
-  v.innerHTML=`<div class="${k}" style="display:contents"><div class="open"><div class="who">${WHO[k].ko}의 일기장</div><div class="paper" id="paper">${pageHTML(k)}</div>${tuckHTML(k)}<div class="cover"><span class="ttl">${WHO[k].en}</span><span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span></div><span class="rib"></span></div></div>`;
+  const tot=totOf(k);
+  v.innerHTML=`<div class="${k}" style="display:contents"><div class="open"><div class="who">${WHO[k].ko}의 일기장</div><div class="paper" id="paper">${pageHTML(k)}</div>${tuckHTML(k)}<div class="cover"><span class="ttl">${WHO[k].en}</span>${tot?`<span class="cnt">총 ${tot}장</span>`:''}<span class="emb"></span><span class="cg tl"></span><span class="cg tr"></span><span class="cg bl"></span><span class="cg br"></span></div><span class="rib"></span></div></div>`;
   v.querySelectorAll('.env').forEach(e=>e.onclick=ev=>{ev.stopPropagation();openLetter(+e.dataset.i)});
   requestAnimationFrame(()=>requestAnimationFrame(()=>{v.classList.add('opened');setTimeout(()=>{if(v.classList.contains('opened'))v.classList.add('settled')},950)}));
   $('#nav').hidden=false;navState();
